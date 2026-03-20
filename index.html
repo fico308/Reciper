@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>今天吃什么</title>
+    <style>
+      :root {
+        --bg: #f0f2f5;
+        --card: #ffffff;
+        --line: #d7dde6;
+        --text: #111827;
+        --muted: #8a94a6;
+        --navy: #0c1837;
+        --orange: #ff6a00;
+        --chip: #f6e7cf;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 24px auto 40px;
+        padding: 0 16px;
+      }
+      .title {
+        margin: 6px 0 18px;
+        font-size: 42px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: 0 2px 8px rgba(15, 25, 45, 0.06);
+        padding: 20px;
+        margin-bottom: 18px;
+      }
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .section-title {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 800;
+      }
+      .label {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .head-link {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 14px;
+        padding: 4px 0;
+        cursor: pointer;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        min-height: 28px;
+        margin-bottom: 12px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--chip);
+        color: #242f42;
+        border-radius: 999px;
+        border: none;
+        padding: 8px 14px;
+        font-size: 16px;
+      }
+      .chip button {
+        border: none;
+        background: transparent;
+        color: #5f6b7f;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+      .input-row {
+        display: grid;
+        grid-template-columns: 1fr 84px;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        padding: 12px 14px;
+        font-size: 16px;
+      }
+      .btn {
+        border: none;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 12px 14px;
+      }
+      .btn:disabled {
+        opacity: 0.75;
+        cursor: not-allowed;
+      }
+      .btn-navy {
+        background: var(--navy);
+        color: #fff;
+      }
+      .btn-light {
+        background: #fff;
+        color: #2a3448;
+        border: 1px solid var(--line);
+      }
+      .btn-orange {
+        width: 100%;
+        border-radius: 999px;
+        background: var(--orange);
+        color: #fff;
+        font-size: 32px;
+        padding: 15px 18px;
+        box-shadow: 0 4px 10px rgba(255, 106, 0, 0.24);
+      }
+      .photo-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .photo-row .btn {
+        padding-top: 11px;
+        padding-bottom: 11px;
+      }
+      .hint {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .recipe-list {
+        display: grid;
+        gap: 10px;
+      }
+      .recipe-item {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+        padding: 14px 16px;
+        box-shadow: 0 1px 4px rgba(12, 24, 55, 0.05);
+      }
+      .recipe-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .recipe-name {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+      .recipe-del {
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .recipe-ing {
+        margin: 10px 0 0;
+        padding-left: 18px;
+        color: #4f5a70;
+        font-size: 16px;
+        line-height: 1.5;
+        font-style: italic;
+      }
+      .btn-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.45);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      .btn-light .spinner {
+        border: 2px solid rgba(12, 24, 55, 0.25);
+        border-top-color: var(--navy);
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      pre {
+        margin: 0;
+        display: none;
+        background: #0f172a;
+        color: #f8fafc;
+        border-radius: 12px;
+        padding: 12px;
+        overflow: auto;
+      }
+      @media (max-width: 900px) {
+        .title { font-size: 32px; }
+        .section-title { font-size: 28px; }
+        .recipe-name { font-size: 24px; }
+        .btn-orange { font-size: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1 class="title">今天吃什么 🍳</h1>
+
+      <section class="card">
+        <div class="section-head">
+          <p class="label">🥬 我的食材</p>
+          <button id="clearIngredientsBtn" type="button" class="head-link">清空</button>
+        </div>
+
+        <div id="ingredientChips" class="chips"></div>
+
+        <div class="input-row">
+          <input id="ingredientInput" type="text" placeholder="添加或修正食材...（回车可添加）" />
+          <button id="addIngredientBtn" type="button" class="btn btn-navy">添加</button>
+        </div>
+
+        <div class="photo-row">
+          <button id="fridgeBtn" type="button" class="btn btn-navy">📸 拍照识别</button>
+          <button id="receiptBtn" type="button" class="btn btn-light">🧾 小票识别</button>
+        </div>
+        <div class="hint">识别后会与当前食材合并</div>
+        <input id="imageInput" type="file" accept="image/*" style="display:none" />
+      </section>
+
+      <button id="genRecipesBtn" type="button" class="btn btn-orange">🔍 生成推荐菜</button>
+
+      <section class="card" style="margin-top:18px;">
+        <div class="section-head">
+          <p class="section-title" style="font-size:38px; margin:0;">🔍 推荐菜</p>
+          <button id="clearRecipesBtn" type="button" class="head-link">清空</button>
+        </div>
+        <div id="recipesList" class="recipe-list"></div>
+      </section>
+    </main>
+
+    <script>
+      const addIngredientBtn = document.getElementById("addIngredientBtn");
+      const clearIngredientsBtn = document.getElementById("clearIngredientsBtn");
+      const clearRecipesBtn = document.getElementById("clearRecipesBtn");
+      const genRecipesBtn = document.getElementById("genRecipesBtn");
+      const fridgeBtn = document.getElementById("fridgeBtn");
+      const receiptBtn = document.getElementById("receiptBtn");
+      const imageInput = document.getElementById("imageInput");
+      const ingredientInput = document.getElementById("ingredientInput");
+      const ingredientChips = document.getElementById("ingredientChips");
+      const recipesListEl = document.getElementById("recipesList");
+
+      let ingredientState = [
+        { name: "鸡蛋", quantity: 6 },
+        { name: "西红柿", quantity: 3 },
+        { name: "面条", quantity: 2 }
+      ];
+      let recipesState = [];
+      let saveTimer = null;
+      let pendingRecognizeMode = null;
+      let pendingRecognizeBtn = null;
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function getNormalizedIngredients() {
+        return ingredientState
+          .map((i) => ({
+            name: String(i.name || "").trim(),
+            quantity: i.quantity === "" || i.quantity === undefined ? null : Number(i.quantity)
+          }))
+          .filter((i) => i.name.length > 0);
+      }
+
+      function setButtonLoading(btn, loading, text) {
+        if (!btn) return;
+        if (loading) {
+          if (!btn.dataset.originalLabel) {
+            btn.dataset.originalLabel = btn.textContent || "";
+          }
+          btn.disabled = true;
+          btn.innerHTML = `<span class="btn-loading"><span class="spinner"></span><span>${text}</span></span>`;
+          return;
+        }
+        btn.disabled = false;
+        btn.textContent = btn.dataset.originalLabel || btn.textContent || "";
+      }
+
+      function renderIngredientChips() {
+        const list = getNormalizedIngredients();
+        ingredientChips.innerHTML = "";
+        if (list.length === 0) {
+          ingredientChips.innerHTML = `<span class="hint">还没有食材，先添加几个吧。</span>`;
+          return;
+        }
+        list.forEach((item, index) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.innerHTML = `${escapeHtml(item.name)} <button data-key="remove-ingredient" data-index="${index}" type="button">×</button>`;
+          ingredientChips.appendChild(chip);
+        });
+      }
+
+      function renderRecipesList() {
+        recipesListEl.innerHTML = "";
+        if (recipesState.length === 0) {
+          recipesListEl.innerHTML = `<div class="menu-empty">还没有推荐菜，点击上方“生成推荐菜”。</div>`;
+          return;
+        }
+
+        recipesState.forEach((recipe, index) => {
+          const item = document.createElement("div");
+          item.className = "recipe-item";
+          const ingItems = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+          item.innerHTML = `
+            <div class="recipe-top">
+              <h3 class="recipe-name">${escapeHtml(recipe.name)}</h3>
+              <button class="recipe-del" data-key="remove-recipe" data-index="${index}" type="button">删除</button>
+            </div>
+            <ul class="recipe-ing">
+              ${ingItems.map((ing) => `<li>${escapeHtml(ing)}</li>`).join("")}
+            </ul>
+          `;
+          recipesListEl.appendChild(item);
+        });
+      }
+
+      function buildStatePayload() {
+        return {
+          ingredients: getNormalizedIngredients(),
+          recipes: recipesState,
+          menu: null
+        };
+      }
+
+      async function saveState() {
+        try {
+          await fetch("/api/state", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(buildStatePayload())
+          });
+        } catch {
+          // ignore
+        }
+      }
+
+      function scheduleSave() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          saveState();
+        }, 280);
+      }
+
+      async function loadState() {
+        try {
+          const resp = await fetch("/api/state");
+          if (!resp.ok) return;
+          const data = await resp.json();
+          if (Array.isArray(data.ingredients) && data.ingredients.length > 0) {
+            ingredientState = data.ingredients;
+          }
+          if (Array.isArray(data.recipes)) {
+            recipesState = data.recipes;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      function addIngredientFromInput() {
+        const raw = ingredientInput.value.trim();
+        if (!raw) return;
+
+        const parts = raw
+          .split(/[，,、\s]+/)
+          .map((x) => x.trim())
+          .filter(Boolean);
+
+        const exists = new Set(getNormalizedIngredients().map((x) => x.name));
+        for (const name of parts) {
+          if (exists.has(name)) continue;
+          ingredientState.push({ name, quantity: null });
+          exists.add(name);
+        }
+
+        ingredientInput.value = "";
+        renderIngredientChips();
+        scheduleSave();
+      }
+
+      function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.onerror = () => reject(new Error("图片读取失败"));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function loadImage(dataUrl) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error("图片加载失败"));
+          img.src = dataUrl;
+        });
+      }
+
+      async function compressImageToDataUrl(file) {
+        const rawDataUrl = await fileToDataUrl(file);
+        if (file.size < 400 * 1024) return rawDataUrl;
+
+        const img = await loadImage(rawDataUrl);
+        const maxWidth = 1280;
+        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+        const width = Math.max(1, Math.round(img.width * scale));
+        const height = Math.max(1, Math.round(img.height * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return rawDataUrl;
+        ctx.drawImage(img, 0, 0, width, height);
+        return canvas.toDataURL("image/jpeg", 0.75);
+      }
+
+      async function recognizeIngredients(mode, btn) {
+        setButtonLoading(btn, true, "识别中...");
+        try {
+          const file = imageInput.files && imageInput.files[0];
+          if (!file) {
+            throw new Error("请先选择图片");
+          }
+
+          const imageDataUrl = await compressImageToDataUrl(file);
+          const existingIngredients = getNormalizedIngredients();
+          const resp = await fetch("/api/recognize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageDataUrl, mode, existingIngredients })
+          });
+          const data = await resp.json();
+          if (!resp.ok) throw new Error(data.error || "识别失败");
+
+          ingredientState = data.mergedIngredients || [];
+          renderIngredientChips();
+          scheduleSave();
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setButtonLoading(btn, false);
+          imageInput.value = "";
+        }
+      }
+
+      async function generateRecipes() {
+        setButtonLoading(genRecipesBtn, true, "生成中...");
+        try {
+          const ingredients = getNormalizedIngredients();
+          const resp = await fetch("/api/recipes/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ingredients })
+          });
+          const data = await resp.json();
+          if (!resp.ok) throw new Error(data.error || "候选菜生成失败");
+
+          recipesState = data.recipes || [];
+          renderRecipesList();
+          scheduleSave();
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setButtonLoading(genRecipesBtn, false);
+        }
+      }
+
+      ingredientChips.addEventListener("click", (e) => {
+        const target = e.target;
+        if (!target || !(target instanceof HTMLButtonElement)) return;
+        if (target.dataset.key !== "remove-ingredient") return;
+        const index = Number(target.dataset.index);
+        if (Number.isNaN(index)) return;
+        const normalized = getNormalizedIngredients();
+        normalized.splice(index, 1);
+        ingredientState = normalized;
+        renderIngredientChips();
+        scheduleSave();
+      });
+
+      recipesListEl.addEventListener("click", (e) => {
+        const target = e.target;
+        if (!target || !(target instanceof HTMLButtonElement)) return;
+        if (target.dataset.key !== "remove-recipe") return;
+        const index = Number(target.dataset.index);
+        if (Number.isNaN(index) || !recipesState[index]) return;
+        recipesState.splice(index, 1);
+        renderRecipesList();
+        scheduleSave();
+      });
+
+      addIngredientBtn.addEventListener("click", addIngredientFromInput);
+      ingredientInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addIngredientFromInput();
+        }
+      });
+
+      clearIngredientsBtn.addEventListener("click", () => {
+        ingredientState = [];
+        renderIngredientChips();
+        scheduleSave();
+      });
+
+      clearRecipesBtn.addEventListener("click", () => {
+        recipesState = [];
+        renderRecipesList();
+        scheduleSave();
+      });
+
+      fridgeBtn.addEventListener("click", () => {
+        pendingRecognizeMode = "fridge";
+        pendingRecognizeBtn = fridgeBtn;
+        imageInput.click();
+      });
+
+      receiptBtn.addEventListener("click", () => {
+        pendingRecognizeMode = "receipt";
+        pendingRecognizeBtn = receiptBtn;
+        imageInput.click();
+      });
+
+      imageInput.addEventListener("change", async () => {
+        if (!pendingRecognizeMode || !pendingRecognizeBtn) return;
+        await recognizeIngredients(pendingRecognizeMode, pendingRecognizeBtn);
+        pendingRecognizeMode = null;
+        pendingRecognizeBtn = null;
+      });
+
+      genRecipesBtn.addEventListener("click", generateRecipes);
+
+      (async () => {
+        await loadState();
+        renderIngredientChips();
+        renderRecipesList();
+      })();
+    </script>
+  </body>
+</html>

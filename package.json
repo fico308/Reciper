@@ -1,0 +1,19 @@
+{
+  "name": "menu-planner-v1",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.24",
+    "@vercel/node": "^5.3.24",
+    "typescript": "^5.8.2",
+    "vercel": "^48.5.0"
+  }
+}
