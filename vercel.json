@@ -2,10 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "buildCommand": "",
-  "outputDirectory": ".",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@5.3.24"
-    }
-  }
+  "outputDirectory": "."
 }
